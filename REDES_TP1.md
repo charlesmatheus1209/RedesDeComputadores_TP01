@@ -17,7 +17,7 @@ Protocolo implementado em Python, que garante que os dados sejam transmitidos de
 -------------
 
 ### Conceitos
-####Enquadramento por Byte-Stuffing
+#### Enquadramento por Byte-Stuffing
  O enquadramento é a técnica usada para separar os quadros de dados em uma sequência de bits transmitida. No caso do "byte-stuffing", os quadros são delimitados por bytes especiais que não ocorrem normalmente nos dados transmitidos. Se o byte especial aparecer nos dados, ele é "escapado" ou "estufado" com um byte especial adicional para que o receptor saiba que esse é um byte de delimitação de quadro e não parte dos dados reais. Dessa forma, o sistema de comunicação garante a entrega confiável dos dados e também fornece uma maneira de identificar o início e o fim de cada quadro de dados, mesmo que os bytes de delimitação ocorram nos próprios dados.
  
  #### Checksum
