@@ -22,3 +22,5 @@ def VerificaChecksum(informacao, ValorChecksum):
 # Checksum('Arroz')
 
 print(VerificaChecksum('Arroz', Checksum('Arroz')))
+print("Hello World")
+

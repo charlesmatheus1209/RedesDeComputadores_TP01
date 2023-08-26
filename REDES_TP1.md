@@ -25,10 +25,10 @@ Protocolo implementado em Python, que garante que os dados sejam transmitidos de
  
  *Funcionamento:*
  
- 1.** Geração do Checksum:** Antes de enviar os dados, o remetente aplica um algoritmo matemático aos dados. Esse algoritmo calcula um valor numérico com base nos dados originais, e esse valor é conhecido como o checksum.
+ 1.** Geração do Checksum: ** Antes de enviar os dados, o remetente aplica um algoritmo matemático aos dados. Esse algoritmo calcula um valor numérico com base nos dados originais, e esse valor é conhecido como o checksum.
  2.** Transmissão dos Dados e do Checksum: ** Tanto os dados originais quanto o checksum são enviados ao destinatário.
  3.** Verificação do Checksum:** No destinatário, os dados recebidos são submetidos ao mesmo algoritmo de checksum que o remetente usou. O destinatário calcula seu próprio checksum a partir dos dados recebidos.
-3.** Comparação dos Checksums:** O destinatário compara o checksum calculado a partir dos dados recebidos com o checksum que acompanha os dados. Se os dois checksums forem iguais, isso indica que os dados não foram corrompidos durante a transmissão e que a integridade dos dados foi mantida. Caso contrário, se os checksums forem diferentes, isso indica que ocorreu algum tipo de erro de transmissão.
+ 4.** Comparação dos Checksums: ** O destinatário compara o checksum calculado a partir dos dados recebidos com o checksum que acompanha os dados. Se os dois checksums forem iguais, isso indica que os dados não foram corrompidos durante a transmissão e que a integridade dos dados foi mantida. Caso contrário, se os checksums forem diferentes, isso indica que ocorreu algum tipo de erro de transmissão.
  
  O checksum é uma técnica eficaz para detectar erros de transmissão, mas não é capaz de corrigi-los. Se um erro for detectado, a ação apropriada geralmente envolve a solicitação de retransmissão dos dados ao remetente para garantir a integridade dos dados.
 
