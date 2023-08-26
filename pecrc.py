@@ -63,3 +63,6 @@ class PECRC:
         #   - enviar uma confirmação para quadros recebidos corretamente,
         #   - conferir a ordem dos quadros e descartar quadros repetidos.
         return self.link.recv(1500)
+    
+    def Hello(self):
+        print('Hello World')
