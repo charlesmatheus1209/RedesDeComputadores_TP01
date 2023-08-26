@@ -37,6 +37,7 @@ class PECRC:
 ####################################################################
 # A princípio, só é preciso alterar as duas funções a seguir.
   
+    # -------------------------------------------------------------------------------------------------
     def send(self,message):
         # Aqui, PPSRT deve fazer:
         #   - fazer o encapsulamento de cada mensagem em um quadro,
@@ -53,6 +54,7 @@ class PECRC:
         #
         self.link.send(message)
 
+    # -------------------------------------------------------------------------------------------------
     def recv(self):
         # Aqui, PPSRT deve fazer:
         #   - identificar começo de um quadro,
@@ -64,5 +66,25 @@ class PECRC:
         #   - conferir a ordem dos quadros e descartar quadros repetidos.
         return self.link.recv(1500)
     
-    def Hello(self):
-        print('Hello World')
+    # -------------------------------------------------------------------------------------------------
+    def Checksum(self, informacao):
+        checksum = 0
+        
+        # Abaixo está a lógica do Checksum. Caso deseje alterá-la basta mudar a seção de código abaixo
+        
+        for i in range(len(informacao)):
+            checksum += i * ord(informacao[i])
+        
+        # print('A checksum da informação \n{\n' + informacao + '\n}\neh:' + str(checksum) )
+        return checksum
+
+    # -------------------------------------------------------------------------------------------------
+    def VerificaChecksum(self, informacao, ValorChecksum):
+        checksum = self.Checksum(informacao)
+            
+        if(ValorChecksum == checksum):
+            # print('A informação chegou perfeitamente')
+            return True
+        else:
+            # print('A informação não chegou perfeitamente')
+            return False
