@@ -78,7 +78,7 @@ Devido ao uso de TCP na criação dos links, o programa recebe.py deve sempre se
 
 ###Códigos Auxiliares 
 
-####canal_tp1.py
+#### canal_tp1.py
 Camada que encapsula a interface de sockets (pense nele como uma camada física).
 
 ```python
@@ -112,7 +112,7 @@ class Link:
     def close(self):
         self.tcp_socket.close()
 ```
-####envia.py
+#### envia.py
 Lê um arquivo e usa o PECRC para enviá-lo através do enlace.
 
 ```python
@@ -139,7 +139,7 @@ while True:
 pecrc.close()
 arquivo.close()
 ```
-####recebe.py
+#### recebe.py
 Usa o PECRC para receber um arquivo do enlace e salvá-lo no disco.
 
 ```python
