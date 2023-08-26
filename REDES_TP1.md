@@ -10,7 +10,7 @@
     - [ ] Roteiro de testes
 -------------
 
-##PECRC, um protocolo de enlace confiável
+## PECRC, um protocolo de enlace confiável
 
 Protocolo implementado em Python, que garante que os dados sejam transmitidos de forma confiável, o que envolve a confirmação da recepção dos dados e a retransmissão de dados perdidos ou corrompidos.
 
