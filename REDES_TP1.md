@@ -2,7 +2,22 @@
 ## Tarefas de implementação
 - [ ] Compreensão do enunciado
 - [ ] Implementação
-    - [ ] Algoritmo checksum
+    - [ ] Send
+        - [ ] Encapsulamento
+        - [ ] Algoritmo checksum
+        - [ ] Byte stuffing
+        - [ ] Agurdar confirmação mensagem
+        - [ ] Retransmissão de mensagens
+    - [ ] Recv
+        - [ ] Identificar começo quadro
+        - [ ] Retirar stuffing
+        - [ ] Algoritmo checksum
+        - [ ] Detectar o fim do quadro
+        - [ ] Checksum recebido
+        - [ ] Descartar quadros com erro
+        - [ ] Enviar confirmação recebidos corretamente
+        - [ ] Conferir ordem dos quadros 
+        - [ ] Descartar quadros repetidos 
 	- [ ] Retirar a impressão de mensagens de depuração
 	- [ ] Revisar se os comentários estão adequados 
 	- [ ] Inserir como comentário o nome da dupla (início do arquivo)
