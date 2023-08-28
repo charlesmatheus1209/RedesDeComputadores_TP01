@@ -63,6 +63,7 @@ class PECRC:
         #   - calcular o checksum do quadro recebido,
         #   - descartar silenciosamente quadros com erro,
         #   - enviar uma confirmação para quadros recebidos corretamente,
+        
         #   - conferir a ordem dos quadros e descartar quadros repetidos.
         return self.link.recv(1500)
     
@@ -76,7 +77,7 @@ class PECRC:
             checksum += i * ord(informacao[i])
         
         # print('A checksum da informação \n{\n' + informacao + '\n}\neh:' + str(checksum) )
-        return checksum
+        return checksum % pow(2,16)
 
     # -------------------------------------------------------------------------------------------------
     def VerificaChecksum(self, informacao, ValorChecksum):
@@ -88,3 +89,12 @@ class PECRC:
         else:
             # print('A informação não chegou perfeitamente')
             return False
+    def ColocarByteStuffing(mensagem, _bytes):
+        for i in range(len(_bytes)):
+            mensagem = mensagem.replace(str(_bytes[i]), '/' + str(_bytes[i]))
+        return mensagem
+
+    def RetirarByteStuffing(mensagem, _bytes):
+        for i in range(len(_bytes)):
+            mensagem = mensagem.replace('/' + str(_bytes[i]), str(_bytes[i]))
+        return mensagem

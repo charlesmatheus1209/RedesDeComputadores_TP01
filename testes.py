@@ -7,7 +7,7 @@ def Checksum(informacao):
             checksum += i * ord(informacao[i])
         
         # print('A checksum da informação \n{\n' + informacao + '\n}\neh:' + str(checksum) )
-        return checksum
+        return checksum % pow(2,16)
 
 def VerificaChecksum(informacao, ValorChecksum):
     checksum = Checksum(informacao)
@@ -19,6 +19,22 @@ def VerificaChecksum(informacao, ValorChecksum):
         # print('A informação não chegou perfeitamente')
         return False
 
-# Checksum('Arroz')
+def ColocarByteStuffing(mensagem, _bytes):
+    
+    for i in range(len(_bytes)):
+        mensagem = mensagem.replace(str(_bytes[i]), '/' + str(_bytes[i]))
+    return mensagem
 
-print(VerificaChecksum('Arroz', Checksum('Arroz')))
+def RetirarByteStuffing(mensagem, _bytes):
+    
+    for i in range(len(_bytes)):
+        mensagem = mensagem.replace('/' + str(_bytes[i]), str(_bytes[i]))
+    return mensagem
+
+# Checksum('Arroz')
+# print(VerificaChecksum('Arroz', Checksum('Arroz')))
+
+
+print(ColocarByteStuffing('arroz', 'ar'))
+print(RetirarByteStuffing('arroz', 'ar'))
+
