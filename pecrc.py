@@ -41,26 +41,21 @@ class PECRC:
   
     # -------------------------------------------------------------------------------------------------
     def send(self,message):
-        # Aqui, PPSRT deve fazer:
-        #   - fazer o encapsulamento de cada mensagem em um quadro,
-        #   - calcular o Checksum do quadro e incluído,
-        checksum = self.Checksum(message)
-        #   - fazer o byte stuffing durante o envio da mensagem,
-        mensagemComBytestuffing = self.ColocarByteStuffing(message, self.Bytes_Bytestuffing)
-        mensagem_envio = self.EncapsulamentoQuadro(message, 'D', mensagemComBytestuffing, checksum)
-        self.link.send(message)
-        #   - aguardar pela mensagem de confirmação,
-        confirmacao = self.link.recv(1500)
-        print(confirmacao)
-        #   - retransmitir a mensagem se a confirmação não chegar.
-        #        Para controlar a retransmissão, use algo como:
-        #        try:
-        #            frame = self.link.recv(1500)
-        #        except TimeoutError: # use para tratar temporizações
-        #            print("Timeout") # cuidaria da retransmissão
-        #        return frame
-        #
-        # self.link.send(message)
+            # Aqui, PPSRT deve fazer:
+            #   - fazer o encapsulamento de cada mensagem em um quadro,
+            #   - calcular o Checksum do quadro e incluído,
+            checksum = self.Checksum(message)
+            #   - fazer o byte stuffing durante o envio da mensagem,
+            mensagemComBytestuffing = self.ColocarByteStuffing(str(message), self.Bytes_Bytestuffing)
+            mensagem_envio = self.EncapsulamentoQuadro(mensagemComBytestuffing, 'D', '1', checksum)
+            self.link.send(bytes(mensagem_envio, 'utf-8'))
+            
+            try:
+                frame = self.link.recv(1500)
+                print(frame)
+            except TimeoutError: # use para tratar temporizações
+                print("Timeout") # cuidaria da retransmissão
+
 
     # -------------------------------------------------------------------------------------------------
     def recv(self):
@@ -71,7 +66,7 @@ class PECRC:
         #   - calcular o checksum do quadro recebido,
         #   - descartar silenciosamente quadros com erro,
         #   - enviar uma confirmação para quadros recebidos corretamente,
-        self.send('C')
+        self.link.send(bytes('C', 'utf-8'))
         #   - conferir a ordem dos quadros e descartar quadros repetidos.
         return self.link.recv(1500)
     
@@ -82,7 +77,8 @@ class PECRC:
         # Abaixo está a lógica do Checksum. Caso deseje alterá-la basta mudar a seção de código abaixo
         
         for i in range(len(informacao)):
-            checksum += i * ord(informacao[i])
+            # checksum += i * ord(informacao[i])
+            checksum = 211
         
         # print('A checksum da informação \n{\n' + informacao + '\n}\neh:' + str(checksum) )
         return checksum % pow(2,16)
@@ -97,16 +93,20 @@ class PECRC:
         else:
             # print('A informação não chegou perfeitamente')
             return False
-    def ColocarByteStuffing(mensagem, _bytes):
+        
+    # -------------------------------------------------------------------------------------------------    
+    def ColocarByteStuffing(self, mensagem, _bytes):
         for i in range(len(_bytes)):
-            mensagem = mensagem.replace(str(_bytes[i]), '!' + str(_bytes[i]))
-        return mensagem
-
-    def RetirarByteStuffing(mensagem, _bytes):
-        for i in range(len(_bytes)):
-            mensagem = mensagem.replace('!' + str(_bytes[i]), str(_bytes[i]))
+            mensagem = mensagem.replace(_bytes[i], '!' + _bytes[i])
         return mensagem
     
+    # -------------------------------------------------------------------------------------------------
+    def RetirarByteStuffing(self, mensagem, _bytes):
+        for i in range(len(_bytes)):
+            mensagem = mensagem.replace('!' + _bytes[i], _bytes[i])
+        return mensagem
+    
+    # -------------------------------------------------------------------------------------------------
     #Todas os parâmetros vão estar corretos e e como string
     def EncapsulamentoQuadro(self,mensagem,controle,pacote,cksum_quadro):
         quadro = '[' + controle + self.separador_mensagem + pacote + self.separador_mensagem + mensagem + self.separador_mensagem + str(cksum_quadro) + ']'
