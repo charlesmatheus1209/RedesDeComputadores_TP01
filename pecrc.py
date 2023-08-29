@@ -41,41 +41,82 @@ class PECRC:
   
     # -------------------------------------------------------------------------------------------------
     def send(self,message):
+        if str(message) == "//MensagemDeConfirmacao//":
             # Aqui, PPSRT deve fazer:
             #   - fazer o encapsulamento de cada mensagem em um quadro,
             #   - calcular o Checksum do quadro e incluído,
-            checksum = self.Checksum(message)
+            checksum = self.Checksum(message.decode('utf-8'))
             #   - fazer o byte stuffing durante o envio da mensagem,
-            mensagemComBytestuffing = self.ColocarByteStuffing(str(message), self.Bytes_Bytestuffing)
-            mensagem_envio = self.EncapsulamentoQuadro(mensagemComBytestuffing, 'D', '1', checksum)
+            mensagemComBytestuffing = self.ColocarByteStuffing(message.decode('utf-8'), self.Bytes_Bytestuffing)
+            mensagem_envio = self.EncapsulamentoQuadro(mensagemComBytestuffing, 'C', '1', checksum)
             self.link.send(bytes(mensagem_envio, 'utf-8'))
+            return 'Vazio'
+            
+        else:
+            # Lista para armazenar os blocos de 3 caracteres
+            MensagemDecodificada = message.decode('utf-8')
+            blocos = []
+
+            # Itera pela string em incrementos de 1500 bytes
+            for i in range(0, len(MensagemDecodificada), 1500):
+                if(i + 1500 > len(MensagemDecodificada)):
+                    bloco = MensagemDecodificada[i:len(MensagemDecodificada)-1]  # Pega os próximos 1500 bytes
+                    blocos.append(bloco)
+                else:
+                    bloco = MensagemDecodificada[i:i+1500]  # Pega os próximos 1500 bytes
+                    blocos.append(bloco)
+
+            #print(blocos)    
+            # Exibe os blocos de 1500 bytes
+            print(len(blocos))
+            for i in range(len(blocos)):
+            
+                checksum = self.Checksum(bloco)
+                mensagemComBytestuffing = self.ColocarByteStuffing(bloco, self.Bytes_Bytestuffing)
+                mensagem_envio = self.EncapsulamentoQuadro(mensagemComBytestuffing, 'D', str(i), checksum)
+                self.link.send(bytes(mensagem_envio, 'utf-8'))
             
             try:
                 frame = self.link.recv(1500)
-                print(frame)
             except TimeoutError: # use para tratar temporizações
                 print("Timeout") # cuidaria da retransmissão
+                checksum = self.Checksum(message)
+                mensagemComBytestuffing = self.ColocarByteStuffing(message.decode('utf-8'), self.Bytes_Bytestuffing)
+                mensagem_envio = self.EncapsulamentoQuadro(mensagemComBytestuffing, 'D', '1', checksum)
+                self.link.send(bytes(mensagem_envio, 'utf-8'))
+            
+    
 
 
     # -------------------------------------------------------------------------------------------------
     def recv(self):
         # Aqui, PPSRT deve fazer:
         #   - identificar começo de um quadro,
-        #   - receber a mensagem byte-a-byte, para retirar o stuffing,
-        #   - detectar o fim do quadro,
-        #   - calcular o checksum do quadro recebido,
-        #   - descartar silenciosamente quadros com erro,
-        #   - enviar uma confirmação para quadros recebidos corretamente,
-        self.link.send(bytes('C', 'utf-8'))
-        #   - conferir a ordem dos quadros e descartar quadros repetidos.
+        Bframe = self.link.recv(1500)
+        frame = str(Bframe)
+        # print(frame)
+        if frame[2] == '[' and frame[-2] == ']':
+            print('Frame Completo')
+            
+            lista = self.DesencapsulaQuadro(frame)
+            informacao = self.RetirarByteStuffing(lista[2], self.Bytes_Bytestuffing)
+            check = self.VerificaChecksum(informacao, lista[3])
+            
+            if check == True:
+                self.send(bytes('//MensagemDeConfirmacao//', 'utf-8'))
+                
+            print(check)
+            
+        else:
+            print('Frame incompleto')
+        
+        
         return self.link.recv(1500)
     
     # -------------------------------------------------------------------------------------------------
     def Checksum(self, informacao):
-        checksum = 0
-        
+        checksum = 0       
         # Abaixo está a lógica do Checksum. Caso deseje alterá-la basta mudar a seção de código abaixo
-        
         for i in range(len(informacao)):
             # checksum += i * ord(informacao[i])
             checksum = 211
@@ -86,8 +127,8 @@ class PECRC:
     # -------------------------------------------------------------------------------------------------
     def VerificaChecksum(self, informacao, ValorChecksum):
         checksum = self.Checksum(informacao)
-            
-        if(ValorChecksum == checksum):
+        
+        if(int(ValorChecksum) == checksum):
             # print('A informação chegou perfeitamente')
             return True
         else:
@@ -111,3 +152,12 @@ class PECRC:
     def EncapsulamentoQuadro(self,mensagem,controle,pacote,cksum_quadro):
         quadro = '[' + controle + self.separador_mensagem + pacote + self.separador_mensagem + mensagem + self.separador_mensagem + str(cksum_quadro) + ']'
         return quadro
+
+    def DesencapsulaQuadro(self, quadro):
+        quadro_recuperado = quadro.replace(self.Bytes_Bytestuffing,"")
+        return quadro_recuperado
+    
+    def DesencapsulaQuadro(self, quadro):
+        sMarcador = quadro[3:-2]
+        lista = sMarcador.split("$%#$%#")
+        return lista

@@ -34,7 +34,12 @@ def RetirarByteStuffing(mensagem, _bytes):
 # Checksum('Arroz')
 # print(VerificaChecksum('Arroz', Checksum('Arroz')))
 
+tt = 'aaa#$aaa'
+tt = "D$%#$%#1$%#$%#b'Conteudo '$%#$%#211"
 
-print(ColocarByteStuffing('arroz', 'ar'))
-print(RetirarByteStuffing('arroz', 'ar'))
+resp = tt.split("$%#$%#")
 
+for r in resp:
+    print(r)
+    
+    b"[D$%#$%#1$%#$%#b'Conteudo '$%#$%#211]"
