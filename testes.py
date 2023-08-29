@@ -26,15 +26,23 @@ def EncapsulamentoQuadro(mensagem,controle,pacote,cksum_quadro):
     quadro = '[' + controle + separador + pacote + separador + mensagem + separador + str(cksum_quadro) + ']'
     return quadro
 
-def DesencapsulaQuadro(quadro):
-    quadro_recuperado = quadro.replace("$%#$%#","")
+def RetiraSeparador(quadro):
+    quadro_recuperado = quadro.split("$%#$%#")
     return quadro_recuperado
+
+def DesencapsulaQuadro(quadro):
+    sMarcador = quadro[3:-1]
+    lista = sMarcador.split("$%#$%#")
+    return lista
+
+
+
 
 # Checksum('Arroz')
 
 # print(VerificaChecksum('Arroz', Checksum('Arroz')))
 # print("Hello World")
 
-print(EncapsulamentoQuadro("OIMUNDO","D","3","265"))
-print(DesencapsulaQuadro(EncapsulamentoQuadro("OIMUNDO","D","3","265")))
+print(DesencapsulaQuadro("b.[D$%#$%#1$%#$%#b'Conteudo '$%#$%#211]"))
+# print(DesencapsulaQuadro(EncapsulamentoQuadro("OIMUNDO","D","3","265")))
 
