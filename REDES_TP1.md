@@ -6,12 +6,12 @@
         - [ ] Encapsulamento
         - [ ] Algoritmo checksum
         - [ ] Byte stuffing
-        - [ ] Agurdar confirmação mensagem
+        - [ ] Aguardar confirmação mensagem
         - [ ] Retransmissão de mensagens
     - [ ] Recv
         - [ ] Identificar começo quadro
         - [ ] Retirar stuffing
-        - [ ] Algoritmo checksum
+        - [ ] Algoritmo verificar checksum
         - [ ] Detectar o fim do quadro
         - [ ] Checksum recebido
         - [ ] Descartar quadros com erro
