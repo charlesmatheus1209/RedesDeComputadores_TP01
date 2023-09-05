@@ -1,4 +1,7 @@
 -------------
+## Dúvidas
+- [ ] Formato e conteúdo da mensagem de onfirmação!
+-------------
 ## Tarefas de implementação
 - [ ] Compreensão do enunciado
 - [ ] Implementação
