@@ -1,6 +1,6 @@
 -------------
 ## Dúvidas
-- [ ] Formato e conteúdo da mensagem de onfirmação!
+- [ ] Formato e conteúdo da mensagem de confirmação!
 -------------
 ## Tarefas de implementação
 - [ ] Compreensão do enunciado
