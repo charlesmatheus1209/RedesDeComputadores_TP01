@@ -1,45 +1,73 @@
-def Checksum(informacao):
-        checksum = 0
+class pecrc1:
+    contador = 0
+    mensagem = bytes()
+    def send(self, mensagem):
+        # print(mensagem)
+        numeroChecksum = self.calcChecksum(mensagem)
+        checksum = hex(numeroChecksum)[2:6]
         
-        # Abaixo está a lógica do Checksum. Caso deseje alterá-la basta mudar a seção de código abaixo
+        # print(bytes(checksum, 'utf-8'))
         
-        for i in range(len(informacao)):
-            checksum += i * ord(informacao[i])
-        
-        # print('A checksum da informação \n{\n' + informacao + '\n}\neh:' + str(checksum) )
-        return checksum % pow(2,16)
+        # Montagemdo quadro
+        quadro = list()
 
-def VerificaChecksum(informacao, ValorChecksum):
-    checksum = Checksum(informacao)
+        quadro.append(bytes('[', 'utf-8'))
+        quadro.append(bytes('D', 'utf-8'))
+        quadro.append(bytes('0', 'utf-8'))
+        quadro.append(mensagem)
+        quadro.append(bytes(checksum,'utf-8'))
+        quadro.append(bytes(']', 'utf-8'))
         
-    if(ValorChecksum == checksum):
-        # print('A informação chegou perfeitamente')
-        return True
-    else:
-        # print('A informação não chegou perfeitamente')
-        return False
-
-def ColocarByteStuffing(mensagem, _bytes):
+        quadroEnviar = b''.join(quadro)
+        
+        return quadroEnviar
+        
+    def calcChecksum(self, mensagem):
+        numero = 100000
+        # print(numero % 65536)
+        return 60000
     
-    for i in range(len(_bytes)):
-        mensagem = mensagem.replace(str(_bytes[i]), '/' + str(_bytes[i]))
-    return mensagem
+    def decodificar(self, mensagem):
+        print('nao feita')
+        
+    def getValor(self):
+        byte = bytes()
+        byte = self.mensagem[self.contador]
+        self.contador += 1
+        return byte.to_bytes(1)
 
-def RetirarByteStuffing(mensagem, _bytes):
-    
-    for i in range(len(_bytes)):
-        mensagem = mensagem.replace('/' + str(_bytes[i]), str(_bytes[i]))
-    return mensagem
+p = pecrc1()
 
-# Checksum('Arroz')
-# print(VerificaChecksum('Arroz', Checksum('Arroz')))
+# mensagem
+mensagemcodificada = "mensagem0000![!]"
+bytesmessage = mensagemcodificada.encode()
 
-tt = 'aaa#$aaa'
-tt = "D$%#$%#1$%#$%#b'Conteudo '$%#$%#211"
+# função enviar
+texto = p.send(bytesmessage)
+p.mensagem = texto
+print(p.mensagem)
 
-resp = tt.split("$%#$%#")
+MENSAAGEMFINAL = bytes()
+while True:
+    byteRecebido = p.getValor()
+    if(byteRecebido == bytes('[', 'utf-8')):
+        # print(byteRecebido)
+        DouC = p.getValor()
+        Controle = p.getValor()
+        while True:
+            byteRecebido = p.getValor()
+            if(byteRecebido == bytes('!', 'utf-8')):
+                byteRecebido = p.getValor()
+                continue
+            print(byteRecebido)
+            MENSAAGEMFINAL += byteRecebido
+            if(byteRecebido == bytes(']', 'utf-8')):
+                break
+        break
 
-for r in resp:
-    print(r)
-    
-    b"[D$%#$%#1$%#$%#b'Conteudo '$%#$%#211]"
+check = MENSAAGEMFINAL[(len(MENSAAGEMFINAL)-5):(len(MENSAAGEMFINAL)-1)]
+intChecksum = int(check,16)
+print(MENSAAGEMFINAL[0:(len(MENSAAGEMFINAL)-1)])
+print(int(check,16))
+
+print(intChecksum == p.calcChecksum(MENSAAGEMFINAL))
