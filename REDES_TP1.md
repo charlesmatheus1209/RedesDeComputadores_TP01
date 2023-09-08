@@ -1,6 +1,6 @@
 -------------
 ## Tarefas de implementação
-- [ ] Compreensão do enunciado
+- [x] Compreensão do enunciado
 - [ ] Implementação
     - [ ] Send
         - [ ] Encapsulamento
