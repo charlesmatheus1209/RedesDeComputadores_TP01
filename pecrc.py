@@ -75,35 +75,42 @@ class PECRC:
 
     def recv(self):
         MENSAAGEMFINAL = bytes()
-        resp = bytes()
+        resp = bytes('', 'utf-8')
         recebidoCompleto = False
-        while True:
-            byteRecebido = self.link.recv(1)
-            # Inicio de Quadro
-            if(byteRecebido == bytes('[', 'utf-8')):
-                DouC = self.link.recv(1)
-                Controle = self.link.recv(1)
-                while True:
+        
+        byteRecebido = self.link.recv(1)
+        # Inicio de Quadro
+        if(byteRecebido == bytes('[', 'utf-8')):
+            DouC = self.link.recv(1)
+            Controle = self.link.recv(1)
+            while True:
+                byteRecebido = self.link.recv(1)
+                if(byteRecebido == bytes('!', 'utf-8')):
                     byteRecebido = self.link.recv(1)
-                    if(byteRecebido == bytes('!', 'utf-8')):
-                        byteRecebido = self.link.recv(1)
-                        MENSAAGEMFINAL += byteRecebido
-                        continue
-                    # print(byteRecebido)
                     MENSAAGEMFINAL += byteRecebido
-                    if(byteRecebido == bytes(']', 'utf-8')):
-                        recebidoCompleto = True
-                        break
-                break
+                    continue
+                # print(byteRecebido)
+                MENSAAGEMFINAL += byteRecebido
+                if(byteRecebido == bytes(']', 'utf-8')):
+                    recebidoCompleto = True
+                    break
         if(recebidoCompleto == True):
             checkRecebido = MENSAAGEMFINAL[(len(MENSAAGEMFINAL)-5):(len(MENSAAGEMFINAL)-1)]
             intChecksum = int(checkRecebido,16)
             MensagemRecebida = MENSAAGEMFINAL[0:(len(MENSAAGEMFINAL)-5)]
             print("Mensagem recebida: ", (MensagemRecebida))
-            resp = MensagemRecebida
             
-        print("RecebisoCompleto: ", recebidoCompleto)
-        return resp
+            if(hex(self.Checksum(MensagemRecebida.decode()))[2:6] == checkRecebido.decode()):
+                resp = MensagemRecebida
+        
+        
+            
+            
+        # print("RecebidoCompleto: ", recebidoCompleto)
+        if len(resp) > 0:
+            return resp
+        else:
+            return 0
         
     
     # -------------------------------------------------------------------------------------------------
