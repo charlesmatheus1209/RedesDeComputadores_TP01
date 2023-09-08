@@ -28,6 +28,8 @@ import canal_tp1
 
 class PECRC:
   
+    
+    Bytes_Bytestuffing = '[]'
     def __init__(self, port, host='' ):
         self.link = canal_tp1.Link(port,host)
 
@@ -52,39 +54,141 @@ class PECRC:
         #            print("Timeout") # cuidaria da retransmissão
         #        return frame
         #
-        self.link.send(message)
+        
+        MsgComByteStuffing = self.ColocarByteStuffing(message.decode(), self.Bytes_Bytestuffing)
+        Checksum = hex(self.Checksum(MsgComByteStuffing))[2:6]
+        
+        quadro = list()
 
-    # -------------------------------------------------------------------------------------------------
+        quadro.append(bytes('[', 'utf-8'))
+        quadro.append(bytes('D', 'utf-8'))
+        quadro.append(bytes('0', 'utf-8'))
+        quadro.append(bytes(MsgComByteStuffing, 'utf-8'))
+        quadro.append(bytes(Checksum,'utf-8'))
+        quadro.append(bytes(']', 'utf-8'))
+        print(quadro)
+        quadroEnviar = b''.join(quadro)
+        
+        print(quadroEnviar)
+        
+        self.link.send(quadroEnviar)
+
     def recv(self):
-        # Aqui, PPSRT deve fazer:
-        #   - identificar começo de um quadro,
-        #   - receber a mensagem byte-a-byte, para retirar o stuffing,
-        #   - detectar o fim do quadro,
-        #   - calcular o checksum do quadro recebido,
-        #   - descartar silenciosamente quadros com erro,
-        #   - enviar uma confirmação para quadros recebidos corretamente,
-        #   - conferir a ordem dos quadros e descartar quadros repetidos.
-        return self.link.recv(1500)
+        MENSAAGEMFINAL = bytes()
+        resp = bytes()
+        recebidoCompleto = False
+        while True:
+            byteRecebido = self.link.recv(1)
+            # Inicio de Quadro
+            if(byteRecebido == bytes('[', 'utf-8')):
+                DouC = self.link.recv(1)
+                Controle = self.link.recv(1)
+                while True:
+                    byteRecebido = self.link.recv(1)
+                    if(byteRecebido == bytes('!', 'utf-8')):
+                        byteRecebido = self.link.recv(1)
+                        MENSAAGEMFINAL += byteRecebido
+                        continue
+                    # print(byteRecebido)
+                    MENSAAGEMFINAL += byteRecebido
+                    if(byteRecebido == bytes(']', 'utf-8')):
+                        recebidoCompleto = True
+                        break
+                break
+        if(recebidoCompleto == True):
+            checkRecebido = MENSAAGEMFINAL[(len(MENSAAGEMFINAL)-5):(len(MENSAAGEMFINAL)-1)]
+            intChecksum = int(checkRecebido,16)
+            MensagemRecebida = MENSAAGEMFINAL[0:(len(MENSAAGEMFINAL)-5)]
+            print("Mensagem recebida: ", (MensagemRecebida))
+            resp = MensagemRecebida
+            
+        print("RecebisoCompleto: ", recebidoCompleto)
+        return resp
+        
     
     # -------------------------------------------------------------------------------------------------
-    def Checksum(self, informacao):
+    def Checksum(self, data1):
+            # Inicialize o checksum com 0.
+        data = bytes(data1, 'utf-8')
         checksum = 0
-        
-        # Abaixo está a lógica do Checksum. Caso deseje alterá-la basta mudar a seção de código abaixo
-        
-        for i in range(len(informacao)):
-            checksum += i * ord(informacao[i])
-        
-        # print('A checksum da informação \n{\n' + informacao + '\n}\neh:' + str(checksum) )
+
+        # Loop através de cada par de bytes na sequência.
+        for i in range(0, len(data), 2):
+            # Combine os dois bytes em um número de 16 bits.
+            # Se houver um byte ímpar no final, adicione 0x00 como o byte inferior.
+            byte1 = data[i]
+            byte2 = data[i + 1] if i + 1 < len(data) else 0x00
+            combined_byte = (byte1 << 8) + byte2
+
+            # Adicione o valor combinado ao checksum.
+            checksum += combined_byte
+
+            # Verifique se houve um estouro de 16 bits (carry).
+            if checksum > 0xFFFF:
+                # Se houver, ajuste o checksum.
+                checksum = (checksum & 0xFFFF) + 1
+
+        # O resultado é o complemento de um do checksum final de 16 bits.
+        checksum = 0xFFFF - checksum
+
         return checksum
 
     # -------------------------------------------------------------------------------------------------
     def VerificaChecksum(self, informacao, ValorChecksum):
         checksum = self.Checksum(informacao)
-            
-        if(ValorChecksum == checksum):
+        
+        if(int(ValorChecksum) == checksum):
             # print('A informação chegou perfeitamente')
             return True
         else:
             # print('A informação não chegou perfeitamente')
             return False
+        
+    # -------------------------------------------------------------------------------------------------    
+    def ColocarByteStuffing(self, mensagem, _bytes):
+        for i in range(len(_bytes)):
+            mensagem = mensagem.replace(_bytes[i], '!' + _bytes[i])
+        return mensagem
+    
+    # -------------------------------------------------------------------------------------------------
+    def RetirarByteStuffing(self, mensagem, _bytes):
+        for i in range(len(_bytes)):
+            mensagem = mensagem.replace('!' + _bytes[i], _bytes[i])
+        return mensagem
+    
+    # -------------------------------------------------------------------------------------------------
+    #Todas os parâmetros vão estar corretos e e como string
+    def EncapsulamentoQuadro(self, mensagem, controle, NumeroPacote, cksum_quadro):
+        quadro = '[' + controle + NumeroPacote +  mensagem + str(cksum_quadro) + ']'
+        return quadro
+
+    def DesencapsulaQuadro(self, quadro):
+        quadro_recuperado = quadro.replace(self.Bytes_Bytestuffing,"")
+        return quadro_recuperado
+    
+    def SeparaMensagem(self, Mensagem, nbytes):
+        BytesMensagem = bytes(Mensagem, 'utf-8')
+        Blocos = []
+        bloco = []
+        
+        for i in range(0, len(BytesMensagem), nbytes):
+            bloco = BytesMensagem[i:i + nbytes]
+            Blocos.append(bloco)
+        
+        return Blocos
+    
+    def VerificaIntegridadeQuadro(self, quadro):
+        stringQuadro = quadro.decode('utf-8')
+        if len(stringQuadro) > 0:
+            print(stringQuadro[0])
+            print(stringQuadro[len(stringQuadro) -1])
+            if stringQuadro[0] == '[' and stringQuadro[len(stringQuadro) -1] == ']':
+                if(stringQuadro[1] == 'D' or stringQuadro[1] == 'C'):
+                    print('Quadro Verificado')
+                else:
+                    print('Falta o D ou C')
+            else:
+                print('O quadro nao comeca com [ ou nao termina com ')
+        else:
+            print('quadro vazio')
+                
