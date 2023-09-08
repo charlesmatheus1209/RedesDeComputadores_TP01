@@ -1,6 +1,6 @@
 -------------
 ## Tarefas de implementação
-- [ ] Compreensão do enunciado
+- [x] Compreensão do enunciado
 - [ ] Implementação
     - [ ] Send
         - [ ] Encapsulamento
@@ -71,7 +71,7 @@ O protocolo utiliza utiliza um quadro com os seguintes campos:
 
 |*Descrição*| Marcador  | Controle  | N° pacote  |Dados   | Checksum  |  Marcador |
 | :------------:| :------------: | :------------: | :------------: | :------------: | :------------: | :------------: |
-|***Conteúdo***|  [ |  D/C |0,1,2,3...   | Máx. 1,5 KB  |16 bits   | ]  |
+|***Conteúdo***|  [ |  D/C |0/1 | Máx. 1,5 KB  |16 bits   | ]  |
 |***Exemplo***|  [ |  D |  0 | "Olá Mundo"  |  256 |  ] |
 
 Byte stuffing feito usando um ponto de exclamação (!) como caractere de escape. Apenas os caracteres de início de bloco, fim de bloco e o próprio ponto de exclamação, caso ocorram entre os marcadores de início e fim do bloco, precisam ser precedidos do caractere de escape. Qualquer byte encontrado depois de um byte de escape deve ser simplesmente tratados como um byte normal, sem significado especial.
