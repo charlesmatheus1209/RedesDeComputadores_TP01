@@ -4,25 +4,34 @@
 - [ ] Implementação
     - [ ] Send
         - [ ] Encapsulamento
-        - [ ] Algoritmo checksum
-        - [ ] Byte stuffing
-        - [ ] Aguardar confirmação mensagem
+            - [ ] Seleção de 1500 bytes com bytestuffing
+            - [ ] Algoritmo do número do pacote
+            - [ ] Mudar caractere de controle e mensagem no ACK
+        - [ ] Algoritmo checksum (conferir) - Marielle
+        - [ ] Byte stuffing - Marielle
+            - [ ] Adicionar lógica que considera ! 
+        - [x] Aguardar confirmação mensagem
         - [ ] Retransmissão de mensagens
+            - [ ] Mudar caractere de controle e mensagem no ACK
     - [ ] Recv
-        - [ ] Identificar começo quadro
-        - [ ] Retirar stuffing
-        - [ ] Algoritmo verificar checksum
-        - [ ] Detectar o fim do quadro
-        - [ ] Checksum recebido
-        - [ ] Descartar quadros com erro
+        - [x] Identificar começo quadro
+        - [ ] Retirar stuffing - Marielle
+            - [ ] Adicionar lógica que considera !
+        - [x] Algoritmo verificar checksum
+        - [x] Detectar o fim do quadro
+        - [x] Descartar quadros com erro
+        - [ ] Verificar se chegou pacotes iguais
+            - [ ] Descartar quadros repetidos
         - [ ] Enviar confirmação recebidos corretamente
-        - [ ] Conferir ordem dos quadros 
-        - [ ] Descartar quadros repetidos 
+    - [ ] Tratamento de erros
+        - [ ] Perda dos flags
+        - [ ] Número de bytes da mensagem é maior que 1500 bytes
 	- [ ] Retirar a impressão de mensagens de depuração
 	- [ ] Revisar se os comentários estão adequados 
 	- [ ] Inserir como comentário o nome da dupla (início do arquivo)
 - [ ] Testes
     - [ ] Roteiro de testes
+        - [ ] Conferir ordem dos quadros 
 -------------
 
 ## PECRC, um protocolo de enlace confiável
