@@ -1,48 +1,36 @@
-def Checksum(informacao):
-        checksum = 0
+def Checksum(data):
+    # Inicialize o checksum com 0.
+    checksum = 0
+
+    # Loop através de cada par de bytes na sequência de dados.
+    for i in range(0, len(data), 2):
+        # Combine dois bytes em uma palavra de 16 bits.
+        word = (data[i] << 8) + (data[i + 1] if i + 1 < len(data) else 0)
         
-        # Abaixo está a lógica do Checksum. Caso deseje alterá-la basta mudar a seção de código abaixo
+        # Adicione a palavra ao checksum.
+        checksum += word
         
-        for i in range(len(informacao)):
-            checksum += i * ord(informacao[i])
-        
-        # print('A checksum da informação \n{\n' + informacao + '\n}\neh:' + str(checksum) )
-        return checksum
+        # Verifique se houve um carry-out e ajuste o checksum, se necessário.
+        if checksum > 0xFFFF:
+            checksum = (checksum & 0xFFFF) + 1
 
-def VerificaChecksum(informacao, ValorChecksum):
-    checksum = Checksum(informacao)
-        
-    if(ValorChecksum == checksum):
-        # print('A informação chegou perfeitamente')
-        return True
-    else:
-        # print('A informação não chegou perfeitamente')
-        return False
+    # Faça o complemento de um para obter o checksum de 16 bits.
+    checksum = ~checksum & 0xFFFF
 
-#Todas os parâmetros vão estar corretos e e como string
-def EncapsulamentoQuadro(mensagem,controle,pacote,cksum_quadro):
-    separador ="$%#$%#"
-    quadro = ""
-    quadro = '[' + controle + separador + pacote + separador + mensagem + separador + str(cksum_quadro) + ']'
-    return quadro
+    return checksum
 
-def RetiraSeparador(quadro):
-    quadro_recuperado = quadro.split("$%#$%#")
-    return quadro_recuperado
+chk = Checksum(bytearray("Marielle".encode("utf-8")))
+print(hex(chk))
 
-def DesencapsulaQuadro(quadro):
-    sMarcador = quadro[3:-1]
-    lista = sMarcador.split("$%#$%#")
-    return lista
-
-
-
+# "Oi aigo !!" = 0x968c
+# "Oi" = 0xb096
+# "Marielle" = 0x6e63
 
 # Checksum('Arroz')
 
 # print(VerificaChecksum('Arroz', Checksum('Arroz')))
 # print("Hello World")
 
-print(DesencapsulaQuadro("b.[D$%#$%#1$%#$%#b'Conteudo '$%#$%#211]"))
+#print(DesencapsulaQuadro("b.[D$%#$%#1$%#$%#b'Conteudo '$%#$%#211]"))
 # print(DesencapsulaQuadro(EncapsulamentoQuadro("OIMUNDO","D","3","265")))
 
