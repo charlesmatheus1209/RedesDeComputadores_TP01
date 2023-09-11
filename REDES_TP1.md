@@ -9,15 +9,17 @@
             - [ ] Mudar caractere de controle e mensagem no ACK
         - [x] Algoritmo checksum (conferir) - Marielle
             - [ ] Adicionar ao código principal
-        - [ ] Byte stuffing - Marielle
-            - [ ] Adicionar lógica que considera ! 
+        - [x] Byte stuffing - Marielle
+            - [x] Adicionar lógica que considera ! 
+            - [ ] Adicionar ao código principal
         - [x] Aguardar confirmação mensagem
         - [ ] Retransmissão de mensagens
             - [ ] Mudar caractere de controle e mensagem no ACK
     - [ ] Recv
         - [x] Identificar começo quadro
-        - [ ] Retirar stuffing - Marielle
-            - [ ] Adicionar lógica que considera !
+        - [x] Retirar stuffing - Marielle
+            - [x] Adicionar lógica que considera !
+            - [ ] Adicionar ao código principal
         - [x] Algoritmo verificar checksum
         - [x] Detectar o fim do quadro
         - [x] Descartar quadros com erro
