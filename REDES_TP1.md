@@ -7,7 +7,8 @@
             - [ ] Seleção de 1500 bytes com bytestuffing
             - [ ] Algoritmo do número do pacote
             - [ ] Mudar caractere de controle e mensagem no ACK
-        - [ ] Algoritmo checksum (conferir) - Marielle
+        - [x] Algoritmo checksum (conferir) - Marielle
+            - [ ] Adicionar ao código principal
         - [ ] Byte stuffing - Marielle
             - [ ] Adicionar lógica que considera ! 
         - [x] Aguardar confirmação mensagem
