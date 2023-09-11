@@ -1,4 +1,6 @@
-def Checksum(data):
+def Checksum(msg): #O parâmetro deve ser uma string
+    data = bytearray(msg.encode("utf-8"))
+    
     # Inicialize o checksum com 0.
     checksum = 0
 
@@ -19,18 +21,9 @@ def Checksum(data):
 
     return checksum
 
-chk = Checksum(bytearray("Marielle".encode("utf-8")))
+chk = Checksum("Oi")
 print(hex(chk))
 
 # "Oi aigo !!" = 0x968c
 # "Oi" = 0xb096
 # "Marielle" = 0x6e63
-
-# Checksum('Arroz')
-
-# print(VerificaChecksum('Arroz', Checksum('Arroz')))
-# print("Hello World")
-
-#print(DesencapsulaQuadro("b.[D$%#$%#1$%#$%#b'Conteudo '$%#$%#211]"))
-# print(DesencapsulaQuadro(EncapsulamentoQuadro("OIMUNDO","D","3","265")))
-
