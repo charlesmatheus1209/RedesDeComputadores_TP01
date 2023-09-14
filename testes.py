@@ -18,12 +18,17 @@ def Checksum(msg): #O parâmetro deve ser uma string
             checksum = (checksum & 0xFFFF) + 1
 
     # Faça o complemento de um para obter o checksum de 16 bits.
-    checksum = ~checksum & 0xFFFF
+    checksum = ~checksum & 0xFFFF #Checksum string
+    print(hex(checksum))
+    
+    #Converte os pares dos caracteres hexa do checksum em caracteres ASCII
+    checksum_final = chr(int(format(checksum, '04x')[:2],16)) + chr(int(format(checksum, '04x')[2:5],16))
+    return checksum_final
 
-    return checksum
-
-# chk = Checksum("Oi")
+chk = Checksum("zadaafaf")
 # print(hex(chk))
+# print(int(chk))
+print(chk)
 
 # "Oi aigo !!" = 0x968c
 # "Oi" = 0xb096
