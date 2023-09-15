@@ -1,16 +1,40 @@
 -------------
-## Dúvidas
-- [ ] Formato e conteúdo da mensagem de confirmação!
--------------
 ## Tarefas de implementação
-- [ ] Compreensão do enunciado
+- [x] Compreensão do enunciado
 - [ ] Implementação
-    - [ ] Algoritmo checksum
+    - [ ] Send
+        - [ ] Encapsulamento
+            - [ ] Seleção de 1500 bytes com bytestuffing
+            - [ ] Algoritmo do número do pacote
+            - [ ] Mudar caractere de controle e mensagem no ACK
+        - [x] Algoritmo checksum (conferir) - Marielle
+            - [ ] Adicionar ao código principal
+        - [x] Byte stuffing - Marielle
+            - [x] Adicionar lógica que considera ! 
+            - [ ] Adicionar ao código principal
+        - [x] Aguardar confirmação mensagem
+        - [ ] Retransmissão de mensagens
+            - [ ] Mudar caractere de controle e mensagem no ACK
+    - [ ] Recv
+        - [x] Identificar começo quadro
+        - [x] Retirar stuffing - Marielle
+            - [x] Adicionar lógica que considera !
+            - [ ] Adicionar ao código principal
+        - [x] Algoritmo verificar checksum
+        - [x] Detectar o fim do quadro
+        - [x] Descartar quadros com erro
+        - [ ] Verificar se chegou pacotes iguais
+            - [ ] Descartar quadros repetidos
+        - [ ] Enviar confirmação recebidos corretamente
+    - [ ] Tratamento de erros
+        - [ ] Perda dos flags
+        - [ ] Número de bytes da mensagem é maior que 1500 bytes
 	- [ ] Retirar a impressão de mensagens de depuração
 	- [ ] Revisar se os comentários estão adequados 
 	- [ ] Inserir como comentário o nome da dupla (início do arquivo)
 - [ ] Testes
     - [ ] Roteiro de testes
+        - [ ] Conferir ordem dos quadros 
 -------------
 
 ## PECRC, um protocolo de enlace confiável
@@ -59,7 +83,7 @@ O protocolo utiliza utiliza um quadro com os seguintes campos:
 
 |*Descrição*| Marcador  | Controle  | N° pacote  |Dados   | Checksum  |  Marcador |
 | :------------:| :------------: | :------------: | :------------: | :------------: | :------------: | :------------: |
-|***Conteúdo***|  [ |  D/C |0,1,2,3...   | Máx. 1,5 KB  |16 bits   | ]  |
+|***Conteúdo***|  [ |  D/C |0/1 | Máx. 1,5 KB  |16 bits   | ]  |
 |***Exemplo***|  [ |  D |  0 | "Olá Mundo"  |  256 |  ] |
 
 Byte stuffing feito usando um ponto de exclamação (!) como caractere de escape. Apenas os caracteres de início de bloco, fim de bloco e o próprio ponto de exclamação, caso ocorram entre os marcadores de início e fim do bloco, precisam ser precedidos do caractere de escape. Qualquer byte encontrado depois de um byte de escape deve ser simplesmente tratados como um byte normal, sem significado especial.
