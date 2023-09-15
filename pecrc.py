@@ -50,6 +50,7 @@ class PECRC:
         for i in range(0, len(blocos)):  
             bloco = blocos[i - j]   
             Checksum = self.Checksum(bloco)
+            print("Checksum: " + Checksum)
             quadro = list()
 
             quadro.append(bytes('[', 'utf-8'))
@@ -132,8 +133,31 @@ class PECRC:
         
     
     # -------------------------------------------------------------------------------------------------
-    def Checksum(self, data1):
-        return 'ab'
+    def Checksum(self, msg): #O parâmetro deve ser uma string
+        data = bytearray(msg.encode("utf-8"))
+        
+        # Inicialize o checksum com 0.
+        checksum = 0
+
+        # Loop através de cada par de bytes na sequência de dados.
+        for i in range(0, len(data), 2):
+            # Combine dois bytes em uma palavra de 16 bits.
+            word = (data[i] << 8) + (data[i + 1] if i + 1 < len(data) else 0)
+            
+            # Adicione a palavra ao checksum.
+            checksum += word
+            
+            # Verifique se houve um carry-out e ajuste o checksum, se necessário.
+            if checksum > 0xFFFF:
+                checksum = (checksum & 0xFFFF) + 1
+
+        # Faça o complemento de um para obter o checksum de 16 bits.
+        checksum = ~checksum & 0xFFFF #Checksum string
+        print(hex(checksum))
+        
+        #Converte os pares dos caracteres hexa do checksum em caracteres ASCII
+        checksum_final = chr(int(format(checksum, '04x')[:2],16)) + chr(int(format(checksum, '04x')[2:5],16))
+        return checksum_final
 
     # -------------------------------------------------------------------------------------------------
     def VerificaChecksum(self, informacao, ValorChecksum):
@@ -147,13 +171,15 @@ class PECRC:
             return False
         
     # -------------------------------------------------------------------------------------------------    
-    def ColocarByteStuffing(self, mensagem, _bytes):
+    def ColocarByteStuffing(mensagem, _bytes):
+        mensagem = mensagem.replace('!', '!!')
         for i in range(len(_bytes)):
-            mensagem = mensagem.replace(_bytes[i], '!' + _bytes[i])
+           mensagem = mensagem.replace(_bytes[i], '!' + _bytes[i])
         return mensagem
     
     # -------------------------------------------------------------------------------------------------
-    def RetirarByteStuffing(self, mensagem, _bytes):
+    def RetirarByteStuffing(mensagem, _bytes):
+        mensagem = mensagem.replace('!!', '!')
         for i in range(len(_bytes)):
             mensagem = mensagem.replace('!' + _bytes[i], _bytes[i])
         return mensagem
