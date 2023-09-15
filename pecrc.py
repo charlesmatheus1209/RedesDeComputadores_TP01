@@ -42,8 +42,10 @@ class PECRC:
   
     # -------------------------------------------------------------------------------------------------
     def send(self,message):
+        # print(message)
         MsgComByteStuffing = self.ColocarByteStuffing(message.decode(), self.Bytes_Bytestuffing)
-
+        # print(MsgComByteStuffing)
+        
         blocos = self.separaTamanho(MsgComByteStuffing, 9)
         NumeroDoQuadro = '0'
         j = 0
@@ -171,14 +173,14 @@ class PECRC:
             return False
         
     # -------------------------------------------------------------------------------------------------    
-    def ColocarByteStuffing(mensagem, _bytes):
+    def ColocarByteStuffing(self, mensagem, _bytes):
         mensagem = mensagem.replace('!', '!!')
         for i in range(len(_bytes)):
            mensagem = mensagem.replace(_bytes[i], '!' + _bytes[i])
         return mensagem
     
     # -------------------------------------------------------------------------------------------------
-    def RetirarByteStuffing(mensagem, _bytes):
+    def RetirarByteStuffing(self, mensagem, _bytes):
         mensagem = mensagem.replace('!!', '!')
         for i in range(len(_bytes)):
             mensagem = mensagem.replace('!' + _bytes[i], _bytes[i])

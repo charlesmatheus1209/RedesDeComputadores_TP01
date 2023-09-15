@@ -8,10 +8,11 @@
             - [ ] Algoritmo do número do pacote
             - [ ] Mudar caractere de controle e mensagem no ACK
         - [x] Algoritmo checksum (conferir) - Marielle
-            - [ ] Adicionar ao código principal
+            - [ ] Verificar problema com textos que tem menos que 4 caracteres
+            - [ ] Merge com código do Charles 
         - [x] Byte stuffing - Marielle
             - [x] Adicionar lógica que considera ! 
-            - [ ] Adicionar ao código principal
+            - [ ] Merge com código do Charles
         - [x] Aguardar confirmação mensagem
         - [ ] Retransmissão de mensagens
             - [ ] Mudar caractere de controle e mensagem no ACK
@@ -19,7 +20,8 @@
         - [x] Identificar começo quadro
         - [x] Retirar stuffing - Marielle
             - [x] Adicionar lógica que considera !
-            - [ ] Adicionar ao código principal
+            - [ ] Verificar onde deveria retirar o bytestuffing
+            - [ ] Merge com código do Charles
         - [x] Algoritmo verificar checksum
         - [x] Detectar o fim do quadro
         - [x] Descartar quadros com erro
