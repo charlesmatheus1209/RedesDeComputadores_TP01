@@ -42,24 +42,32 @@ class PECRC:
   
     # -------------------------------------------------------------------------------------------------
     def send(self,message):
-        # print(message)
         MsgComByteStuffing = self.ColocarByteStuffing(message.decode(), self.Bytes_Bytestuffing)
-        # print(MsgComByteStuffing)
-        
+
         blocos = self.separaTamanho(MsgComByteStuffing, 9)
         NumeroDoQuadro = '0'
         j = 0
         for i in range(0, len(blocos)):  
             bloco = blocos[i - j]   
             Checksum = self.Checksum(bloco)
-            print("Checksum: " + Checksum)
             quadro = list()
+            
+            print("Codigo ascii dec: ", ord(Checksum[0:1]))
+            # print("pc", chr(ord(Checksum[0:1])))
+            # print("sc", chr(ord(Checksum[1:2])))
+            # print(bytes(chr(ord(Checksum[0:1])), 'utf-8'))
+            # print(bytes(chr(ord(Checksum[1:2])), 'utf-8'))
+            # print(chr(ord(Checksum[1:2])).encode('utf-8'))
+            # segundo_caractere = bytes(ord(Checksum[1:2]),'utf-8')
+            
 
             quadro.append(bytes('[', 'utf-8'))
             quadro.append(bytes('D', 'utf-8'))
             quadro.append(bytes(NumeroDoQuadro, 'utf-8'))
             quadro.append(bytes(bloco, 'utf-8'))
             quadro.append(bytes(str(Checksum),'utf-8'))
+            # quadro.append(primeiro_caractere)
+            # quadro.append(segundo_caractere)
             quadro.append(bytes(']', 'utf-8'))
             
             quadroEnviar = b''.join(quadro)
@@ -82,7 +90,7 @@ class PECRC:
                     NumeroDoQuadro = '0'
             except TimeoutError: # use para tratar temporizações
                 print("Timeout") # cuidaria da retransmissão 
-                j += 1 
+                j += 1
 
 
 
@@ -157,7 +165,7 @@ class PECRC:
         checksum = ~checksum & 0xFFFF #Checksum string
         print(hex(checksum))
         
-        #Converte os pares dos caracteres hexa do checksum em caracteres ASCII
+         #Converte os pares dos caracteres hexa do checksum em caracteres ASCII
         checksum_final = chr(int(format(checksum, '04x')[:2],16)) + chr(int(format(checksum, '04x')[2:5],16))
         return checksum_final
 

@@ -25,7 +25,7 @@ def Checksum(msg): #O parâmetro deve ser uma string
     checksum_final = chr(int(format(checksum, '04x')[:2],16)) + chr(int(format(checksum, '04x')[2:5],16))
     return checksum_final
 
-chk = Checksum("a")
+chk = Checksum("olafy")
 # print(hex(chk))
 # print(int(chk))
 print(chk)
@@ -60,3 +60,24 @@ def RetirarByteStuffing(mensagem, _bytes):
 #print(RetirarByteStuffing(msg_stuf,Bytes_Bytestuffing))
 # print(RetirarByteStuffing(msg_stuf2,Bytes_Bytestuffing))
 # print("[Bom dia!!Mundo omo! Se !!!r]")
+
+
+
+
+# ---------------------Testes ------------------------------#
+ # print("Codigo ascii dec: ", ord(Checksum[0:1]))
+            # # print("pc", chr(ord(Checksum[0:1])))
+            # # print("sc", chr(ord(Checksum[1:2])))
+            # # print(bytes(chr(ord(Checksum[0:1])), 'utf-8'))
+            # # print(bytes(chr(ord(Checksum[1:2])), 'utf-8'))
+            # # print(chr(ord(Checksum[1:2])).encode('utf-8'))
+            # # segundo_caractere = bytes(ord(Checksum[1:2]),'utf-8')
+
+            # quadro.append(bytes('[', 'utf-8'))
+            # quadro.append(bytes('D', 'utf-8'))
+            # quadro.append(bytes(NumeroDoQuadro, 'utf-8'))
+            # quadro.append(bytes(bloco, 'utf-8'))
+            # quadro.append(bytes(str(Checksum),'utf-8'))
+            # # quadro.append(primeiro_caractere)
+            # # quadro.append(segundo_caractere)
+            # quadro.append(bytes(']', 'utf-8'))
