@@ -25,7 +25,7 @@ def Checksum(msg): #O parâmetro deve ser uma string
     checksum_final = chr(int(format(checksum, '04x')[:2],16)) + chr(int(format(checksum, '04x')[2:5],16))
     return checksum_final
 
-chk = Checksum("olafy")
+chk = Checksum("olafola")
 # print(hex(chk))
 # print(int(chk))
 print(chk)

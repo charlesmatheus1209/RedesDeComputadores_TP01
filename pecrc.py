@@ -30,6 +30,7 @@ class PECRC:
   
     
     Bytes_Bytestuffing = '[]'
+    NumeroDoQuadro = '0'
     
     def __init__(self, port, host='' ):
         self.link = canal_tp1.Link(port,host)
@@ -44,38 +45,36 @@ class PECRC:
     def send(self,message):
         MsgComByteStuffing = self.ColocarByteStuffing(message.decode(), self.Bytes_Bytestuffing)
 
-        blocos = self.separaTamanho(MsgComByteStuffing, 9)
-        NumeroDoQuadro = '0'
-        j = 0
-        for i in range(0, len(blocos)):  
-            bloco = blocos[i - j]   
-            Checksum = self.Checksum(bloco)
-            quadro = list()
-            
-            print("Codigo ascii dec: ", ord(Checksum[0:1]))
-            # print("pc", chr(ord(Checksum[0:1])))
-            # print("sc", chr(ord(Checksum[1:2])))
-            # print(bytes(chr(ord(Checksum[0:1])), 'utf-8'))
-            # print(bytes(chr(ord(Checksum[1:2])), 'utf-8'))
-            # print(chr(ord(Checksum[1:2])).encode('utf-8'))
-            # segundo_caractere = bytes(ord(Checksum[1:2]),'utf-8')
-            
+        Checksum = self.Checksum(MsgComByteStuffing)
+        print("Checksum: '", Checksum, "'")
+        quadro = list()
+        
+        # print("Codigo ascii dec: ", ord(Checksum[0:1]))
+        # print("pc", chr(ord(Checksum[0])))
+        # print("sc", chr(ord(Checksum[1])))
+        # print(bytes(chr(ord(Checksum[0:1])), 'utf-8'))
+        # print(bytes(chr(ord(Checksum[1:2])), 'utf-8'))
+        # print(chr(ord(Checksum[1:2])).encode('utf-8'))
+        # segundo_caractere = bytes(ord(Checksum[1:2]),'utf-8')
+        
 
-            quadro.append(bytes('[', 'utf-8'))
-            quadro.append(bytes('D', 'utf-8'))
-            quadro.append(bytes(NumeroDoQuadro, 'utf-8'))
-            quadro.append(bytes(bloco, 'utf-8'))
-            quadro.append(bytes(str(Checksum),'utf-8'))
-            # quadro.append(primeiro_caractere)
-            # quadro.append(segundo_caractere)
-            quadro.append(bytes(']', 'utf-8'))
-            
-            quadroEnviar = b''.join(quadro)
-            
-            print("QuadroEnviar: ", quadroEnviar)
-            
-            self.link.send(quadroEnviar)
-            
+        quadro.append(bytes('[', 'utf-8'))
+        quadro.append(bytes('C', 'utf-8'))
+        quadro.append(bytes(self.NumeroDoQuadro, 'utf-8'))
+        quadro.append(bytes(MsgComByteStuffing, 'utf-8'))
+        quadro.append(bytes(Checksum,'utf-8'))
+        # quadro.append(primeiro_caractere)
+        # quadro.append(segundo_caractere)
+        quadro.append(bytes(']', 'utf-8'))
+        
+        quadroEnviar = b''.join(quadro)
+        
+        print("QuadroEnviar: ", quadroEnviar)
+        
+        self.link.send(quadroEnviar)
+        
+        for i in range(0,4):  
+            print("i:", i) 
             try:
                 frame = self.link.recv(1500)
                 print(frame)
@@ -84,60 +83,100 @@ class PECRC:
                     
                 print('Chegou')
                 
-                if NumeroDoQuadro == '0':
-                    NumeroDoQuadro = '1'
+                if self.NumeroDoQuadro == '0':
+                    self.NumeroDoQuadro = '1'
                 else:
-                    NumeroDoQuadro = '0'
+                    self.NumeroDoQuadro = '0'
+                    
+                return
             except TimeoutError: # use para tratar temporizações
                 print("Timeout") # cuidaria da retransmissão 
-                j += 1
-
+                self.link.send(quadroEnviar)
+                
 
 
     def recv(self):
-        
+        continuacao_perda_fim_Quadro = False
+        byteRecebido = bytes()
+        caracteres_total = 0
         print("------------Inicio Pecrc.Recv-----------")
             
         NquadroAnterior = bytes('1', 'utf-8')
         while True:
-            MENSAAGEMFINAL = bytes()
-            resp = bytes('', 'utf-8')
-            recebidoCompleto = False
-            byteRecebido = self.link.recv(1)
-            # Inicio de Quadro
-            if(byteRecebido == bytes('[', 'utf-8')):
-                DouC = self.link.recv(1)
-                Controle = self.link.recv(1)
-                            
-                while True:
-                    byteRecebido = self.link.recv(1)
-                    if(byteRecebido == bytes('!', 'utf-8')):
-                        byteRecebido = self.link.recv(1)
-                        MENSAAGEMFINAL += byteRecebido
-                        continue
-                    # print(byteRecebido)
-                    MENSAAGEMFINAL += byteRecebido
-                    if(byteRecebido == bytes(']', 'utf-8')):
-                        recebidoCompleto = True
-                        break
-                    
-                if(recebidoCompleto == True):
-                    checkRecebido = MENSAAGEMFINAL[(len(MENSAAGEMFINAL)-3):(len(MENSAAGEMFINAL)-1)]
-                    MensagemRecebida = MENSAAGEMFINAL[0:(len(MENSAAGEMFINAL)-3)]
-                    print("Mensagem recebida: ", (MensagemRecebida))
-                    print("Controle: ", Controle)
-                    print("Controle Anterir: ", NquadroAnterior)
-                    if((self.Checksum(MensagemRecebida.decode()) == checkRecebido.decode()) and (Controle != NquadroAnterior) ):
-                        resp = MensagemRecebida
-                        
-                        NquadroAnterior = Controle
-                        print("Entrei")
-                        self.link.send(bytes('[C{}]'.format(Controle.decode()), 'utf-8'))
-                    else:
-                        print("Nao Entrei")
-                        
-            else:
+            if caracteres_total >= 3000:
+                caracteres_total = 0
                 break
+            else:
+                print("Estou no while 1")
+                MENSAAGEMFINAL = bytes()
+                resp = bytes('', 'utf-8')
+                recebidoCompleto = False
+                if(continuacao_perda_fim_Quadro == True):
+                    byteRecebido = self.link.recv(1)
+                    caracteres_total += 1
+                
+                # Inicio de Quadro
+                if(byteRecebido == bytes('[', 'utf-8')):
+                    continuacao_perda_fim_Quadro = False
+                    print("Estou no if [")
+                    DouC = self.link.recv(1)
+                    caracteres_total += 1
+                    if DouC == bytes('D', 'utf-8'):
+                        Controle = self.link.recv(1)
+                        caracteres_total += 1
+                                    
+                        while True:
+                            byteRecebido = self.link.recv(1)
+                            caracteres_total += 1
+                            if(byteRecebido == bytes('!', 'utf-8')):
+                                byteRecebido = self.link.recv(1)
+                                caracteres_total += 1
+                                MENSAAGEMFINAL += byteRecebido
+                                continue
+                            # print(byteRecebido)
+                            MENSAAGEMFINAL += byteRecebido
+                            if(byteRecebido == bytes(']', 'utf-8')):
+                                recebidoCompleto = True
+                                break
+                            
+                        if(recebidoCompleto == True):
+                            checkRecebido = MENSAAGEMFINAL[(len(MENSAAGEMFINAL)-3):(len(MENSAAGEMFINAL)-1)]
+                            MensagemRecebida = MENSAAGEMFINAL[0:(len(MENSAAGEMFINAL)-3)]
+                            print("Mensagem recebida: ", (MensagemRecebida))
+                            print("Controle: ", Controle)
+                            print("Controle Anterir: ", NquadroAnterior)
+                            if((self.Checksum(MensagemRecebida.decode()) == checkRecebido.decode()) and (Controle != NquadroAnterior) ):
+                                resp = MensagemRecebida
+                                
+                                NquadroAnterior = Controle
+                                print("Entrei")
+                                self.link.send(bytes('[C{}]'.format(Controle.decode()), 'utf-8'))
+                                break
+                            else:
+                                print("Nao Entrei")
+                                return resp
+                        else:
+                            continue
+                    else:
+                        continue            
+                else:
+                    atual = bytes()
+                    anterior = bytes()
+                    caracteres_total = 0
+                    while True:
+                        byteRecebido = self.link.recv(1)
+                        caracteres_total += 1
+                        print(byteRecebido)
+                        atual = byteRecebido
+                        
+                        if atual == bytes('[', 'utf-8') and anterior == bytes(']', 'utf-8'):
+                            byteRecebido = bytes('[', 'utf-8')
+                            continuacao_perda_fim_Quadro = True
+                            break
+                        if caracteres_total >= 3000:
+                            break
+                            
+                    continue
         print("RecebidoCompleto: ", resp)
         return resp
         
@@ -167,7 +206,8 @@ class PECRC:
         
          #Converte os pares dos caracteres hexa do checksum em caracteres ASCII
         checksum_final = chr(int(format(checksum, '04x')[:2],16)) + chr(int(format(checksum, '04x')[2:5],16))
-        return checksum_final
+        # return checksum_final
+        return 'AB'
 
     # -------------------------------------------------------------------------------------------------
     def VerificaChecksum(self, informacao, ValorChecksum):
@@ -204,16 +244,6 @@ class PECRC:
         quadro_recuperado = quadro.replace(self.Bytes_Bytestuffing,"")
         return quadro_recuperado
     
-    def SeparaMensagem(self, Mensagem, nbytes):
-        BytesMensagem = bytes(Mensagem, 'utf-8')
-        Blocos = []
-        bloco = []
-        
-        for i in range(0, len(BytesMensagem), nbytes):
-            bloco = BytesMensagem[i:i + nbytes]
-            Blocos.append(bloco)
-        
-        return Blocos
     
     def VerificaIntegridadeQuadro(self, quadro):
         stringQuadro = quadro.decode('utf-8')

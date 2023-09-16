@@ -4,33 +4,37 @@
 - [ ] Implementação
     - [ ] Send
         - [ ] Encapsulamento
-            - [ ] Seleção de 1500 bytes com bytestuffing
-            - [ ] Algoritmo do número do pacote
-            - [ ] Mudar caractere de controle e mensagem no ACK
+            - [x] Seleção de 1500 bytes com bytestuffing
+            - [x] Algoritmo do número do pacote
+            - [x] Mudar caractere de controle e mensagem no ACK
         - [x] Algoritmo checksum (conferir) - Marielle
             - [ ] Verificar problema com textos que tem menos que 4 caracteres
             - [ ] Merge com código do Charles 
         - [x] Byte stuffing - Marielle
             - [x] Adicionar lógica que considera ! 
-            - [ ] Merge com código do Charles
+            - [x] Merge com código do Charles
         - [x] Aguardar confirmação mensagem
-        - [ ] Retransmissão de mensagens
-            - [ ] Mudar caractere de controle e mensagem no ACK
+        - [x] Retransmissão de mensagens
+            - [x] Mudar caractere de controle e mensagem no ACK
     - [ ] Recv
         - [x] Identificar começo quadro
         - [x] Retirar stuffing - Marielle
             - [x] Adicionar lógica que considera !
-            - [ ] Verificar onde deveria retirar o bytestuffing
-            - [ ] Merge com código do Charles
+            - [x] Verificar onde deveria retirar o bytestuffing
+            - [x] Merge com código do Charles
+        -[ ] Desencapsulamento
+            - [ ] Controle
+            - [ ] Pacote
         - [x] Algoritmo verificar checksum
         - [x] Detectar o fim do quadro
         - [x] Descartar quadros com erro
-        - [ ] Verificar se chegou pacotes iguais
-            - [ ] Descartar quadros repetidos
-        - [ ] Enviar confirmação recebidos corretamente
+        - [x] Verificar se chegou pacotes iguais
+            - [x] Descartar quadros repetidos
+        - [x] Enviar confirmação recebidos corretamente
     - [ ] Tratamento de erros
         - [ ] Perda dos flags
         - [ ] Número de bytes da mensagem é maior que 1500 bytes
+        - [ ] Não encontrar encontrar final de quadro
 	- [ ] Retirar a impressão de mensagens de depuração
 	- [ ] Revisar se os comentários estão adequados 
 	- [ ] Inserir como comentário o nome da dupla (início do arquivo)
