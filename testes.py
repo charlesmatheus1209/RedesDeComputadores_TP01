@@ -1,7 +1,7 @@
 # --------------------------------Cálculo Checksum------------------------------- #
 def Checksum(msg): #O parâmetro deve ser uma string
     data = bytearray(msg.encode("utf-8"))
-    
+        
     # Inicialize o checksum com 0.
     checksum = 0
 
@@ -21,14 +21,32 @@ def Checksum(msg): #O parâmetro deve ser uma string
     checksum = ~checksum & 0xFFFF #Checksum string
     print(hex(checksum))
     
-    #Converte os pares dos caracteres hexa do checksum em caracteres ASCII
-    checksum_final = chr(int(format(checksum, '04x')[:2],16)) + chr(int(format(checksum, '04x')[2:5],16))
-    return checksum_final
+    byte1 = hex(checksum)[2:4]
+    byte2 = hex(checksum)[4:6]
+    # print("b1:",byte1)
+    # print("b2:",byte2)
+    chk_16bits = bytes([int(byte1,16),int(byte2,16)])
+    print("chk_16bits:",chk_16bits)
+    
+        #Converte os pares dos caracteres hexa do checksum em caracteres ASCII
+    # checksum_final = chr(int(format(checksum, '04x')[:2],16)) + chr(int(format(checksum, '04x')[2:5],16))
+    # return 'AB'
+    return chk_16bits
 
-chk = Checksum("olafola")
+chk = Checksum("olafaa")
 # print(hex(chk))
 # print(int(chk))
-print(chk)
+# print(chk)
+
+# hexadecimal = 0x21AB
+
+# # Extraia os bytes de 16 bits individualmente
+# byte1 = (hexadecimal >> 8) & 0xFF  # Byte mais significativo
+# byte2 = hexadecimal & 0xFF  # Byte menos significativo
+
+# # Imprima os valores de byte1 e byte2
+# print("byte1:", byte1)
+# print("byte2:", byte2)
 
 # "Oi aigo !!" = 0x968c
 # "Oi" = 0xb096
@@ -50,16 +68,7 @@ def ColocarByteStuffing(mensagem, _bytes):
 # print("![Bom dia!!!!Mundo omo!! Se !!!!!!r!]")
 # print(msg_stuf2)
 
-# --------------------------------Retirada Stuffing-------------------------------- #
-def RetirarByteStuffing(mensagem, _bytes):
-        mensagem = mensagem.replace('!!', '!')
-        for i in range(len(_bytes)):
-            mensagem = mensagem.replace('!' + _bytes[i], _bytes[i])
-        return mensagem
 
-#print(RetirarByteStuffing(msg_stuf,Bytes_Bytestuffing))
-# print(RetirarByteStuffing(msg_stuf2,Bytes_Bytestuffing))
-# print("[Bom dia!!Mundo omo! Se !!!r]")
 
 
 
