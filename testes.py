@@ -18,25 +18,42 @@ def Checksum(msg): #O parâmetro deve ser uma string
             checksum = (checksum & 0xFFFF) + 1
 
     # Faça o complemento de um para obter o checksum de 16 bits.
-    checksum = ~checksum & 0xFFFF #Checksum string
+    checksum = ~checksum & 0xFFFF
+    print("checksum",checksum)
     print(hex(checksum))
     
-    byte1 = hex(checksum)[2:4]
-    byte2 = hex(checksum)[4:6]
-    # print("b1:",byte1)
-    # print("b2:",byte2)
-    chk_16bits = bytes([int(byte1,16),int(byte2,16)])
+    byte1 = (checksum >> 8) & 0xFF
+    byte2 = checksum & 0xFF
+    print("b1:",byte1)
+    print("b2:",byte2)
+    
+    # print(int(hex(byte1),16))
+    
+    chk_16bits = bytes([byte1,byte2])
     print("chk_16bits:",chk_16bits)
     
-        #Converte os pares dos caracteres hexa do checksum em caracteres ASCII
-    # checksum_final = chr(int(format(checksum, '04x')[:2],16)) + chr(int(format(checksum, '04x')[2:5],16))
     # return 'AB'
     return chk_16bits
 
-chk = Checksum("olafaa")
+chk = Checksum("D0aloMundoBomdia")
 # print(hex(chk))
 # print(int(chk))
 # print(chk)
+
+# import sys
+
+# # Sua variável
+# minha_variavel = 42  # Substitua pelo seu valor
+
+# # Obtenha o tamanho em bytes
+# tamanho_em_bytes = sys.getsizeof(minha_variavel)
+
+# # Converta para tamanho em bits
+# tamanho_em_bits = tamanho_em_bytes * 8
+
+# # Imprima o tamanho em bits
+# print("tamanho em bytes:", tamanho_em_bytes)
+# print("Tamanho em bits:", tamanho_em_bits)
 
 # hexadecimal = 0x21AB
 
