@@ -35,7 +35,7 @@ def Checksum(msg): #O parâmetro deve ser uma string
     # return 'AB'
     return chk_16bits
 
-chk = Checksum("D0aloMundoBomdia")
+chk = Checksum("D0aloMund")
 # print(hex(chk))
 # print(int(chk))
 # print(chk)
