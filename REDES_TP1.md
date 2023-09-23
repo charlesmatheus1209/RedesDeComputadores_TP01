@@ -1,40 +1,40 @@
 -------------
 ## Tarefas de implementação
 - [x] Compreensão do enunciado
-- [ ] Implementação
-    - [ ] Send
-        - [ ] Encapsulamento
-            - [ ] Seleção de 1500 bytes com bytestuffing
-            - [ ] Algoritmo do número do pacote
-            - [ ] Mudar caractere de controle e mensagem no ACK
+- [x] Implementação
+    - [x] Send
+        - [x] Encapsulamento
+            - [x] Seleção de 1500 bytes com bytestuffing
+            - [x] Algoritmo do número do pacote
+            - [x] Mudar caractere de controle e mensagem no ACK
         - [x] Algoritmo checksum (conferir) - Marielle
-            - [ ] Adicionar ao código principal
+            - [x] Adicionar ao código principal
         - [x] Byte stuffing - Marielle
             - [x] Adicionar lógica que considera ! 
-            - [ ] Adicionar ao código principal
+            - [x] Adicionar ao código principal
         - [x] Aguardar confirmação mensagem
-        - [ ] Retransmissão de mensagens
-            - [ ] Mudar caractere de controle e mensagem no ACK
-    - [ ] Recv
+        - [x] Retransmissão de mensagens
+            - [x] Mudar caractere de controle e mensagem no ACK
+    - [x] Recv
         - [x] Identificar começo quadro
         - [x] Retirar stuffing - Marielle
             - [x] Adicionar lógica que considera !
-            - [ ] Adicionar ao código principal
+            - [x] Adicionar ao código principal
         - [x] Algoritmo verificar checksum
         - [x] Detectar o fim do quadro
         - [x] Descartar quadros com erro
-        - [ ] Verificar se chegou pacotes iguais
-            - [ ] Descartar quadros repetidos
-        - [ ] Enviar confirmação recebidos corretamente
-    - [ ] Tratamento de erros
-        - [ ] Perda dos flags
-        - [ ] Número de bytes da mensagem é maior que 1500 bytes
-	- [ ] Retirar a impressão de mensagens de depuração
-	- [ ] Revisar se os comentários estão adequados 
-	- [ ] Inserir como comentário o nome da dupla (início do arquivo)
-- [ ] Testes
-    - [ ] Roteiro de testes
-        - [ ] Conferir ordem dos quadros 
+        - [x] Verificar se chegou pacotes iguais
+            - [x] Descartar quadros repetidos
+        - [x] Enviar confirmação recebidos corretamente
+    - [x] Tratamento de erros
+        - [x] Perda dos flags
+        - [x] Número de bytes da mensagem é maior que 1500 bytes
+	- [x] Retirar a impressão de mensagens de depuração
+	- [x] Revisar se os comentários estão adequados 
+	- [x] Inserir como comentário o nome da dupla (início do arquivo)
+- [x] Testes
+    - [x] Roteiro de testes
+        - [x] Conferir ordem dos quadros 
 -------------
 
 ## PECRC, um protocolo de enlace confiável
