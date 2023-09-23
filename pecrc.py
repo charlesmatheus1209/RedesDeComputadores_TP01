@@ -24,12 +24,16 @@
 # PECRC não pode utilizar a interface de sockets diretamente.
 ################################################################
 
+import sys
 import canal_tp1
 
 class PECRC:
   
     
-    Bytes_Bytestuffing = '[]'
+    NumeroQuadroEnvia = '0'
+    NumeroControleAnterior = bytes('1', 'utf-8')
+    
+    # testeCkS = '00'
     
     def __init__(self, port, host='' ):
         self.link = canal_tp1.Link(port,host)
@@ -42,158 +46,227 @@ class PECRC:
   
     # -------------------------------------------------------------------------------------------------
     def send(self,message):
-        MsgComByteStuffing = self.ColocarByteStuffing(message.decode(), self.Bytes_Bytestuffing)
-
-        blocos = self.separaTamanho(MsgComByteStuffing, 9)
-        NumeroDoQuadro = '0'
-        j = 0
-        for i in range(0, len(blocos)):  
-            bloco = blocos[i - j]   
-            Checksum = self.Checksum(bloco)
-            quadro = list()
-
-            quadro.append(bytes('[', 'utf-8'))
-            quadro.append(bytes('D', 'utf-8'))
-            quadro.append(bytes(NumeroDoQuadro, 'utf-8'))
-            quadro.append(bytes(bloco, 'utf-8'))
-            quadro.append(bytes(str(Checksum),'utf-8'))
-            quadro.append(bytes(']', 'utf-8'))
-            
-            quadroEnviar = b''.join(quadro)
-            
-            print("QuadroEnviar: ", quadroEnviar)
-            
-            self.link.send(quadroEnviar)
-            
+        quadro = bytearray()
+        
+        quadro.append(ord('D'))
+        quadro.append(ord(self.NumeroQuadroEnvia))
+        quadro.append(0)
+        quadro.append(0)
+        
+        
+        for i in range(0, len(message)):
+            quadro.append(message[i])
+        
+        chks = self.Checksum(quadro[4:])
+        quadro = self.ColocarByteStuffing(quadro)
+        
+        quadro[2] = chks[0]
+        quadro[3] = chks[1]
+        
+        self.link.send(bytes('[', 'utf-8'))
+        self.link.send(quadro)
+        # self.link.send(bytes(']', 'utf-8'))
+        
+        # print("Quadro: ", quadro)
+        
+        for i in range(0, 4):
             try:
                 frame = self.link.recv(1500)
-                print(frame)
                 
-                if(not frame): raise TimeoutError
-                    
-                print('Chegou')
-                
-                if NumeroDoQuadro == '0':
-                    NumeroDoQuadro = '1'
+                if(len(frame) == 6):
+                    if(self.NumeroQuadroEnvia == '0'):
+                        if(frame[0] == ord('[') and 
+                           frame[1] == ord('C') and 
+                           frame[2] == ord(self.NumeroQuadroEnvia) and
+                           frame[3] == 140 and
+                           frame[4] == 159 and
+                           frame[5] == ord(']') 
+                            ):
+                            
+                            if(self.NumeroQuadroEnvia == '0'):
+                                self.NumeroQuadroEnvia = '1'
+                            else:
+                                self.NumeroQuadroEnvia = '0'
+                        else:
+                            raise
+                    else:
+                        if(frame[0] == ord('[') and 
+                            frame[1] == ord('C') and 
+                            frame[2] == ord(self.NumeroQuadroEnvia) and
+                            frame[3] == 140 and
+                            frame[4] == 158 and
+                            frame[5] == ord(']') 
+                            ):
+                            
+                            if(self.NumeroQuadroEnvia == '0'):
+                                self.NumeroQuadroEnvia = '1'
+                            else:
+                                self.NumeroQuadroEnvia = '0'
+                            
+                        else:
+                            raise
                 else:
-                    NumeroDoQuadro = '0'
-            except TimeoutError: # use para tratar temporizações
-                print("Timeout") # cuidaria da retransmissão 
-                j += 1 
-
+                    raise
+                                
+                return
+            except:
+                self.link.send(bytes('[', 'utf-8'))
+                self.link.send(quadro)
+                self.link.send(bytes(']', 'utf-8'))
+                
+        print('Deu tudo errado')
+        sys.exit()
+        
+                
 
 
     def recv(self):
+        received = bytes()
+        quadoNovoEncontrado = False
+        Times = 0
         
-        print("------------Inicio Pecrc.Recv-----------")
+        while(True):
             
-        NquadroAnterior = bytes('1', 'utf-8')
-        while True:
-            MENSAAGEMFINAL = bytes()
-            resp = bytes('', 'utf-8')
-            recebidoCompleto = False
-            byteRecebido = self.link.recv(1)
-            # Inicio de Quadro
-            if(byteRecebido == bytes('[', 'utf-8')):
-                DouC = self.link.recv(1)
-                Controle = self.link.recv(1)
-                            
-                while True:
-                    byteRecebido = self.link.recv(1)
-                    if(byteRecebido == bytes('!', 'utf-8')):
-                        byteRecebido = self.link.recv(1)
-                        MENSAAGEMFINAL += byteRecebido
-                        continue
-                    # print(byteRecebido)
-                    MENSAAGEMFINAL += byteRecebido
-                    if(byteRecebido == bytes(']', 'utf-8')):
-                        recebidoCompleto = True
-                        break
-                    
-                if(recebidoCompleto == True):
-                    checkRecebido = MENSAAGEMFINAL[(len(MENSAAGEMFINAL)-3):(len(MENSAAGEMFINAL)-1)]
-                    MensagemRecebida = MENSAAGEMFINAL[0:(len(MENSAAGEMFINAL)-3)]
-                    print("Mensagem recebida: ", (MensagemRecebida))
-                    print("Controle: ", Controle)
-                    print("Controle Anterir: ", NquadroAnterior)
-                    if((self.Checksum(MensagemRecebida.decode()) == checkRecebido.decode()) and (Controle != NquadroAnterior) ):
-                        resp = MensagemRecebida
-                        
-                        NquadroAnterior = Controle
-                        print("Entrei")
-                        self.link.send(bytes('[C{}]'.format(Controle.decode()), 'utf-8'))
-                    else:
-                        print("Nao Entrei")
-                        
-            else:
+            DouC = bytes()
+            Controle = bytes()
+            Chks = bytes()
+            byteRecebido = bytes()
+            QuadroRecebidoCorretamente = False
+            
+            if(quadoNovoEncontrado == False):
+                byteRecebido = self.link.recv(1)
+                
+            if(byteRecebido == bytes('', 'utf-8') and Times == 0):
                 break
-        print("RecebidoCompleto: ", resp)
-        return resp
+            Times +=1
+            if(byteRecebido == bytes('[', 'utf-8') or quadoNovoEncontrado == True):
+                DouC += self.link.recv(1)
+                Controle += self.link.recv(1)
+                Chks += self.link.recv(2)
+                
+                erroEnquadramento = False
+                while(True):
+                    try:
+                        byteRecebido = self.link.recv(1)
+                        
+                        if(byteRecebido == bytes('!', 'utf-8')):
+                            byteRecebido = self.link.recv(1)
+                            received += byteRecebido
+                        else:
+                            if(byteRecebido == bytes(']', 'utf-8')):
+                                break
+                            else:
+                                received += byteRecebido
+                                
+                        if(len(received) > 1500):
+                            # print('Erro de Enquadramento')
+                            received = bytes()
+                            erroEnquadramento = True
+                            break
+                    except:
+                        # print('Demorou d+')
+                        break
+                
+                if(erroEnquadramento):
+                    quadoNovoEncontrado = self.ProcuraInicioNovoQuadro()
+                    continue
+            
+            verificacao_checksum = self.VerificaChecksum(received, Chks)
+            verificacao_controle = Controle != self.NumeroControleAnterior
+            if(DouC == bytes('D', 'utf-8') and verificacao_checksum and verificacao_controle):
+                QuadroRecebidoCorretamente = True
+                self.NumeroControleAnterior = Controle
+                        
+            
+            if(QuadroRecebidoCorretamente):
+                ACK = bytearray()
+                
+                ACK.append(ord('['))
+                ACK.append(ord('C'))
+                ACK.append(ord(Controle))
+                # print('Controle: ', Controle)
+                
+                if(Controle == bytes('0', 'utf-8')):
+                    ACK.append(140)
+                    ACK.append(159)
+                else:
+                    ACK.append(140)
+                    ACK.append(158)
+                    
+                ACK.append(ord(']'))
+                self.link.send(ACK)
+                break
+            else:
+                received = bytes()
+                   
+        # print('Mensagem Recebida: ', received)
+        return received
         
-    
+        
     # -------------------------------------------------------------------------------------------------
-    def Checksum(self, data1):
-        return 'ab'
+    def Checksum(self, msg):
+        
+        data = msg
+        
+        # Inicialize o checksum com 0.
+        checksum = 0
 
-    # -------------------------------------------------------------------------------------------------
-    def VerificaChecksum(self, informacao, ValorChecksum):
-        checksum = self.Checksum(informacao)
+        # Loop através de cada par de bytes na sequência de dados.
+        for i in range(0, len(data), 2):
+            # Combine dois bytes em uma palavra de 16 bits.
+            word = (data[i] << 8) + (data[i + 1] if i + 1 < len(data) else 0)
+            
+            # Adicione a palavra ao checksum.
+            checksum += word
+            
+            # Verifique se houve um carry-out e ajuste o checksum, se necessário.
+            if checksum > 0xFFFF:
+                checksum = (checksum & 0xFFFF) + 1
+
+        # Faça o complemento de um para obter o checksum de 16 bits.
+        checksum = ~checksum & 0xFFFF
+        # print("checksum",checksum)
+        # print(hex(checksum))
         
-        if(int(ValorChecksum) == checksum):
-            # print('A informação chegou perfeitamente')
+        byte1 = (checksum >> 8) & 0xFF
+        byte2 = checksum & 0xFF
+        # print("b1:",byte1)
+        # print("b2:",byte2)
+        
+        # print(int(hex(byte1),16))
+        
+        chk_16bits = [byte1,byte2]
+        # print("chk_16bits:",chk_16bits)
+        
+        return chk_16bits
+    # -------------------------------------------------------------------------------------------------
+    def ColocarByteStuffing(self, mensagem):
+        msg = bytearray()
+        for i in range(0, len(mensagem)):
+            if(mensagem[i] == ord(']') or mensagem[i] == ord('[') or mensagem[i] == ord('!')):
+                msg.append(ord('!'))
+                msg.append(mensagem[i])
+            else:
+                msg.append(mensagem[i])
+        return msg
+    
+        
+    def VerificaChecksum(self, Quadro, chks):
+        if(self.Checksum(Quadro)[0] == chks[0] and self.Checksum(Quadro)[1] == chks[1]):
             return True
         else:
-            # print('A informação não chegou perfeitamente')
             return False
+    
+    def ProcuraInicioNovoQuadro(self):        
+        atual = bytes()
+        anterior = bytes()
         
-    # -------------------------------------------------------------------------------------------------    
-    def ColocarByteStuffing(self, mensagem, _bytes):
-        for i in range(len(_bytes)):
-            mensagem = mensagem.replace(_bytes[i], '!' + _bytes[i])
-        return mensagem
-    
-    # -------------------------------------------------------------------------------------------------
-    def RetirarByteStuffing(self, mensagem, _bytes):
-        for i in range(len(_bytes)):
-            mensagem = mensagem.replace('!' + _bytes[i], _bytes[i])
-        return mensagem
-    
-    # -------------------------------------------------------------------------------------------------
-    #Todas os parâmetros vão estar corretos e e como string
-    def EncapsulamentoQuadro(self, mensagem, controle, NumeroPacote, cksum_quadro):
-        quadro = '[' + controle + NumeroPacote +  mensagem + str(cksum_quadro) + ']'
-        return quadro
-
-    def DesencapsulaQuadro(self, quadro):
-        quadro_recuperado = quadro.replace(self.Bytes_Bytestuffing,"")
-        return quadro_recuperado
-    
-    def SeparaMensagem(self, Mensagem, nbytes):
-        BytesMensagem = bytes(Mensagem, 'utf-8')
-        Blocos = []
-        bloco = []
-        
-        for i in range(0, len(BytesMensagem), nbytes):
-            bloco = BytesMensagem[i:i + nbytes]
-            Blocos.append(bloco)
-        
-        return Blocos
-    
-    def VerificaIntegridadeQuadro(self, quadro):
-        stringQuadro = quadro.decode('utf-8')
-        if len(stringQuadro) > 0:
-            print(stringQuadro[0])
-            print(stringQuadro[len(stringQuadro) -1])
-            if stringQuadro[0] == '[' and stringQuadro[len(stringQuadro) -1] == ']':
-                if(stringQuadro[1] == 'D' or stringQuadro[1] == 'C'):
-                    print('Quadro Verificado')
-                else:
-                    print('Falta o D ou C')
+        while(True):
+            atual = self.link.recv(1)
+            if(atual == bytes('[', 'utf-8') and anterior == bytes(']', 'utf-8')):
+                print('Achei')
+                break
             else:
-                print('O quadro nao comeca com [ ou nao termina com ')
-        else:
-            print('quadro vazio')
-    
-    def separaTamanho(self, msg, tamanho):  
-        blocos = [msg[i:i+tamanho] for i in range(0, len(msg), tamanho)]
-        return blocos
+                anterior = atual
+        return True
+        
